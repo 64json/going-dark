@@ -13,7 +13,7 @@ function App() {
   const [game, setGame] = useState(null);
 
   useEffect(() => {
-    const socket = io.connect('http://localhost:8080');
+    const socket = io.connect('http://172.24.96.188:8080');
     setSocket(socket);
 
     return () => {
