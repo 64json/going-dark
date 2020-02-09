@@ -3,7 +3,7 @@ import './App.scss';
 import { GameRenderer } from './GameRenderer';
 import io from 'socket.io-client';
 import Lobby from './Lobby';
-import { Game, Me, User } from './beans';
+import { Game, Me, Team, User } from './beans';
 import { UUID } from './utils';
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
   const [game, setGame] = useState(null);
 
   useEffect(() => {
-    const socket = io.connect('https://launchyourownchinesemissle.space');
+    const socket = io.connect('http://localhost:8080');
     setSocket(socket);
 
     return () => {
@@ -27,7 +27,8 @@ function App() {
     const server = {
       updateGame: updatedGame => socket.emit('updateGame', updatedGame),
       updateMap: (i, j, value) => socket.emit('updateMap', game.id, i, j, value),
-      updateUser: (updatedUser) => socket.emit('updateUser', game.id, updatedUser),
+      updateUser: updatedUser => socket.emit('updateUser', game.id, updatedUser),
+      updateTeam: updatedTeam => socket.emit('updateTeam', game.id, updatedTeam),
     };
 
     if (game) {
@@ -36,7 +37,8 @@ function App() {
 
     const handleJoinGame = gameJson => {
       const game = Game.restore(gameJson);
-      game.users.push(new Me(UUID, 0, game.map.getSpawnPos(game.users.length)));
+      const teamId = game.users.filter(user => user.teamId === 0).length * 2 < game.users.length ? 0 : 1;
+      game.users.push(new Me(UUID, teamId, game.getSpawnPos(teamId)));
       setGame(game);
       socket.emit('updateGame', game);
     };
@@ -64,16 +66,28 @@ function App() {
       user.sync(server);
     };
 
+    const handleUpdateTeam = teamJson => {
+      if (!game) return;
+      const updatedTeam = Team.restore(teamJson);
+      const team = game.teams.find(team => team.id === updatedTeam.id);
+      if (!team) return;
+      team.sync(null);
+      Object.assign(team, updatedTeam);
+      team.sync(server);
+    };
+
     socket.on('joinGame', handleJoinGame);
     socket.on('updateGame', handleUpdateGame);
     socket.on('updateMap', handleUpdateMap);
     socket.on('updateUser', handleUpdateUser);
+    socket.on('updateTeam', handleUpdateTeam);
 
     return () => {
       socket.removeListener('joinGame', handleJoinGame);
       socket.removeListener('updateGame', handleUpdateGame);
       socket.removeListener('updateMap', handleUpdateMap);
       socket.removeListener('updateUser', handleUpdateUser);
+      socket.removeListener('updateTeam', handleUpdateTeam);
     };
   }, [game, socket]);
 

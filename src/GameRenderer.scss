@@ -12,6 +12,9 @@
   transform-origin: 50vw 50vw;
 
   .grid {
+    position: absolute;
+    height: 100%;
+    width: 100%;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -39,8 +42,9 @@
     }
 
     .row {
-      position: relative;
+      position: absolute;
       height: $gridSize;
+      width: 100%;
 
       .col {
         position: absolute;
@@ -182,6 +186,12 @@
     left: 0;
     flex-direction: column;
     margin: 4vw;
+
+    &.reversed {
+      .canvas {
+        transform: rotate(180deg);
+      }
+    }
 
     .canvas {
       display: block;

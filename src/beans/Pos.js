@@ -38,4 +38,10 @@ export class Pos {
   equals(pos) {
     return this.x === pos.x && this.y === pos.y;
   }
+
+  get teamId() {
+    if (this.x < 80) return 0;
+    if (this.x > 80) return 1;
+    return -1;
+  }
 }

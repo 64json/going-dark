@@ -24,7 +24,7 @@ function Lobby({ socket }) {
       </div>
       <button className="create" onClick={() => {
         const map = new Map(161, 81);
-        const game = new Game(RANDOM_GAME_ID, map, [], new Window(11, 22));
+        const game = new Game(RANDOM_GAME_ID, map, undefined, undefined, new Window(11, 22));
         socket.emit('createGame', game.id, game);
       }}>Create a Game
       </button>

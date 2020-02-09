@@ -17,6 +17,22 @@ $height: $width * 1.4;
     background-image: url(images/characters/character_1.png);
   }
 
+  &.bottom {
+    background-position-x: 0;
+  }
+
+  &.left {
+    background-position-x: -$width;
+  }
+
+  &.top {
+    background-position-x: -$width * 2;
+  }
+
+  &.right {
+    background-position-x: -$width * 3;
+  }
+
   background-size: 400%;
   animation-name: walking-anim;
   animation-duration: .75s;
@@ -27,33 +43,16 @@ $height: $width * 1.4;
     background-position-y: 0;
   }
 
-  &.bottom {
-    background-position-x: 0;
-
-    .holding {
-      right: 0;
-    }
-  }
-
+  &.top,
   &.left {
-    background-position-x: -$width;
-
     .holding {
       left: 0;
     }
   }
 
-  &.top {
-    background-position-x: -$width * 2;
 
-    .holding {
-      left: 0;
-    }
-  }
-
+  &.bottom,
   &.right {
-    background-position-x: -$width * 3;
-
     .holding {
       right: 0;
     }

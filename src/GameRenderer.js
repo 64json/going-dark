@@ -34,9 +34,9 @@ const obstacles = [ROCK0, ROCK1, ROCK2, TREE, JAIL,
 const FPS = 30;
 
 export function GameRenderer({ game }) {
-  const { me, map } = game;
+  const { me, map, teams } = game;
   const [frame, setFrame] = useState(0);
-  const [scanAngle, setScanAngle] = useState(0);
+  const reversed = me.teamId === 0;
 
   useEffect(() => {
     const onKeyDown = e => {
@@ -58,8 +58,12 @@ export function GameRenderer({ game }) {
           break;
         default:
       }
-      dx /= 5;
-      dy /= 5;
+      dx /= 3;
+      dy /= 3;
+      if (reversed) {
+        dx *= -1;
+        dy *= -1;
+      }
       me.delta = new Pos(dx, dy);
     };
 
@@ -70,8 +74,12 @@ export function GameRenderer({ game }) {
     const onTilt = e => {
       const beta = e.beta;
       const gamma = e.gamma;
-      const dx = -gamma / 360;
-      const dy = beta / 360;
+      let dx = -gamma / 360;
+      let dy = beta / 360;
+      if (reversed) {
+        dx *= -1;
+        dy *= -1;
+      }
       me.delta = new Pos(dx, dy);
     };
 
@@ -103,7 +111,7 @@ export function GameRenderer({ game }) {
   useEffect(() => {
     if (me.isScanning) {
       const aimingAngle = me.angle;
-      let currentAngle = scanAngle;
+      let currentAngle = teams[me.pos.teamId].scanAngle;
       const unit = Math.PI / 300;
       const delta = aimingAngle - currentAngle;
       const magnitude = Math.abs(delta);
@@ -114,7 +122,7 @@ export function GameRenderer({ game }) {
         currentAngle += delta / magnitude * unit;
       }
       currentAngle %= Math.PI * 2;
-      setScanAngle(currentAngle);
+      teams[me.pos.teamId].scanAngle = currentAngle;
     } else {
       const currentPos = me.pos;
       const nextPos = me.nextPos;
@@ -142,9 +150,11 @@ export function GameRenderer({ game }) {
     }
   }, [frame]);
 
-  const crop = me.pos.minus(game.window.center).minus(new Pos(3, 3));
-
-  const croppedMap = map.crop(crop, game.window.height + 7, game.window.width + 7);
+  const pad = 6;
+  const crop = me.pos.minus(game.window.center).minus(new Pos(pad, pad));
+  const croppedMap = map.crop(crop, game.window.height + pad * 2, game.window.width + pad * 2);
+  const offsetX = (Math.round(crop.x) - crop.x) - pad;
+  const offsetY = (Math.round(crop.y) - crop.y) - pad;
 
   const minimapRef = useRef(null);
   const canvas = minimapRef.current;
@@ -178,7 +188,7 @@ export function GameRenderer({ game }) {
     ctx.fillRect(me.pos.y - 1, me.pos.x - 1, 3, 3);
 
     ctx.strokeStyle = '#FFFFFF';
-    ctx.strokeRect(crop.y + 2, crop.x + 2, game.window.width + 2, game.window.height + 2);
+    ctx.strokeRect(me.pos.y - game.window.center.y - 1, me.pos.x - game.window.center.x - 1, game.window.width + 2, game.window.height + 2);
   }
 
   return (
@@ -193,34 +203,32 @@ export function GameRenderer({ game }) {
              me.hasKey = false;
            }
          }}>
-      <div className={classes('grid', me.isScanning && 'scan')} style={{
-        marginTop: `calc(${(me.pos.x + .5 | 0) - me.pos.x - 3} * ${game.window.gridSize})`,
-        marginLeft: `calc(${(me.pos.y + .5 | 0) - me.pos.y - 3} * ${game.window.gridSize})`,
-        paddingLeft: me.isScanning ? `calc((100vh - 100vw) / 2)` : '',
-      }}>
+      <div className={classes('grid', me.isScanning && 'scan')}>
         {
           croppedMap.map((row, i) => (
-            <div className="row" key={i}>
+            <div className="row" key={i} style={{
+              [reversed ? 'bottom' : 'top']: `calc(${i + offsetX} * ${game.window.gridSize})`,
+            }}>
               {
                 row.map((flag, j) => {
                   const blocks = ['divider', 'rock0', 'rock1', 'rock2', 'tree', 'tower', 'jail', 'key',
-                    'border_top',
-                    'border_bottom',
-                    'border_left',
-                    'border_right',
-                    'border_top_left',
-                    'border_top_right',
-                    'border_bottom_left',
-                    'border_bottom_right']
+                    reversed ? 'border_bottom' : 'border_top',
+                    reversed ? 'border_top' : 'border_bottom',
+                    reversed ? 'border_right' : 'border_left',
+                    reversed ? 'border_left' : 'border_right',
+                    reversed ? 'border_bottom_right' : 'border_top_left',
+                    reversed ? 'border_bottom_left' : 'border_top_right',
+                    reversed ? 'border_top_right' : 'border_bottom_left',
+                    reversed ? 'border_top_left' : 'border_bottom_right']
                     .filter((_, k) => (flag & (1 << k)) > 0);
                   return blocks.length > 0 && (
                     <div className="col" key={j} style={{
-                      left: `calc(${j} * ${game.window.gridSize})`,
+                      [reversed ? 'right' : 'left']: `calc(${j + offsetY} * ${game.window.gridSize}${me.isScanning ? ' + (100vh - 100vw) / 2' : ''})`,
                     }}>
                       {
                         blocks.map(block => (
                           <div key={block} className={classes('block', block)} style={{
-                            zIndex: ['divider', 'key'].includes(block) ? 0 : crop.indices[0] + i,
+                            zIndex: ['divider', 'key'].includes(block) ? 0 : (crop.indices[0] + i) * (reversed ? -1 : 1) + game.map.height * 2,
                           }}>
                           </div>
                         ))
@@ -234,21 +242,22 @@ export function GameRenderer({ game }) {
         }
       </div>
       {
+        !me.isScanning &&
         game.otherUsers.map((user, i) => (
           <Character key={i} className="character" user={user} style={{
-            zIndex: user.pos.indices[0],
-            top: `calc(${user.pos.x - me.pos.x + game.window.center.x} * ${game.window.gridSize})`,
-            left: `calc(${user.pos.y - me.pos.y + game.window.center.y} * ${game.window.gridSize})`,
-          }}/>
+            zIndex: user.pos.indices[0] * (reversed ? -1 : 1) + game.map.height * 2,
+            [reversed ? 'bottom' : 'top']: `calc(${(user.pos.x - me.pos.x) + game.window.center.x} * ${game.window.gridSize})`,
+            [reversed ? 'right' : 'left']: `calc(${(user.pos.y - me.pos.y) + game.window.center.y} * ${game.window.gridSize})`,
+          }} reversed={reversed}/>
         ))
       }
       {
         !me.isScanning &&
         <Character className="character" user={me} style={{
-          zIndex: me.pos.indices[0],
-          top: `calc(${game.window.center.x} * ${game.window.gridSize})`,
-          left: `calc(${game.window.center.y} * ${game.window.gridSize})`,
-        }}/>
+          zIndex: me.pos.indices[0] * (reversed ? -1 : 1) + game.map.height * 2,
+          [reversed ? 'bottom' : 'top']: `calc(${game.window.center.x} * ${game.window.gridSize})`,
+          [reversed ? 'right' : 'left']: `calc(${game.window.center.y} * ${game.window.gridSize})`,
+        }} reversed={reversed}/>
       }
       {
         !me.isScanning &&
@@ -260,12 +269,12 @@ export function GameRenderer({ game }) {
       {
         me.isScanning &&
         <div className="spotlight" style={{
-          transform: `rotate(${scanAngle / Math.PI * 180}deg)`,
+          transform: `rotate(${teams[me.pos.teamId].scanAngle / Math.PI * 180}deg)`,
         }}/>
       }
       {
         !me.isScanning &&
-        <div className="minimap">
+        <div className={classes('minimap', reversed && 'reversed')}>
           <canvas ref={minimapRef} className="canvas" height={map.height} width={map.width}/>
         </div>
       }

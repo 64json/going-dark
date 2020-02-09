@@ -24,7 +24,7 @@ export class User {
 
   get pos() {
     if (this.isScanning) {
-      return new Pos(40, 40);
+      return new Pos([40, 120][this._pos.teamId], 40);
     }
     return this._pos;
   }
@@ -70,11 +70,11 @@ export class User {
     this.server && this.server.updateUser(this);
   }
 
-  get isScanning(){
+  get isScanning() {
     return this._isScanning;
   }
 
-  set isScanning(isScanning){
+  set isScanning(isScanning) {
     this._isScanning = isScanning;
     this.server && this.server.updateUser(this);
   }

@@ -61,14 +61,34 @@ export class Map {
   }
 
   crop(pos, height, width) {
-    const [i, j] = pos.indices;
-    const rows = i < 0
-      ? [...new Array(-i).fill(0).map(() => new Array(width).fill(0)), ...this.map.slice(0, i + height)]
-      : this.map.slice(i, i + height);
-    return rows.map(row => j < 0
-      ? [...new Array(-j).fill(0), ...row.slice(0, j + width)]
-      : row.slice(j, j + width),
-    );
+    let [i, j] = pos.indices;
+    let topPad = 0;
+    let bottomPad = 0;
+    let leftPad = 0;
+    let rightPad = 0;
+    if (i < 0) {
+      topPad = -i;
+      i = 0;
+      height -= topPad;
+    }
+    if (j < 0) {
+      leftPad = -j;
+      j = 0;
+      width -= leftPad;
+    }
+    if (i + height >= this.height) {
+      bottomPad = i + height - this.height;
+      height -= bottomPad;
+    }
+    if (j + width >= this.width) {
+      rightPad = j + width - this.width;
+      width -= rightPad;
+    }
+    return [
+      ...new Array(topPad).fill(0).map(() => new Array(width).fill(0)),
+      ...this.map.slice(i, i + height).map(row => [...new Array(leftPad).fill(0), ...row.slice(j, j + width), ...new Array(rightPad).fill(0)]),
+      ...new Array(bottomPad).fill(0).map(() => new Array(width).fill(0)),
+    ];
   }
 
   add(pos, flag) {
@@ -103,11 +123,5 @@ export class Map {
       this.height / 2 | 0,
       this.width / 2 | 0,
     );
-  }
-
-  getSpawnPos(userCount = 0) {
-    const pos = new Pos(this.height - 6 - userCount, this.center.y);
-    this.clear(pos);
-    return pos;
   }
 }
