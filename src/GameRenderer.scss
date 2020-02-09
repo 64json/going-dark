@@ -1,0 +1,194 @@
+@import "./constants";
+
+.GameRenderer {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100vw;
+  width: 100vh;
+  transform: rotate(90deg);
+  transform-origin: 50vw 50vw;
+
+  .grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background-image: url(images/blocks/tileGrass.png);
+    background-size: $gridSize $gridSize;
+    background-repeat: repeat;
+
+    &.scan {
+      $newGridSize: 1.23vw;
+      background-size: $newGridSize $newGridSize;
+
+      .row {
+        height: $newGridSize;
+
+        .col {
+          width: $newGridSize;
+          height: $newGridSize;
+
+          .block {
+            height: $newGridSize;
+          }
+        }
+      }
+    }
+
+    .row {
+      position: relative;
+      height: $gridSize;
+
+      .col {
+        position: absolute;
+        display: flex;
+        flex-direction: column-reverse;
+        width: $gridSize;
+        height: $gridSize;
+
+        .block {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: $gridSize;
+          background-position: bottom;
+          background-size: 100%;
+          background-repeat: no-repeat;
+
+          &.rock0 {
+            background-image: url(images/blocks/rock1.png);
+          }
+
+          &.rock1 {
+            background-image: url(images/blocks/rock2.png);
+          }
+
+          &.rock2 {
+            background-image: url(images/blocks/rock3.png);
+          }
+
+          &.tree {
+            height: 200%;
+            background-image: url(images/blocks/tree.png);
+          }
+
+          &.tower {
+            bottom: -150%;
+            left: -200%;
+            right: -200%;
+            height: 800%;
+            background-image: url(images/blocks/tower.png);
+          }
+
+          &.jail {
+            background-image: url(images/blocks/jail.png);
+            background-position-y: center;
+          }
+
+          &.divider {
+            background-image: url(images/blocks/brownGrass.png);
+            background-size: cover;
+          }
+
+          &.border_left {
+            background-image: url(images/blocks/borderLeft.png);
+            background-size: cover;
+          }
+
+          &.border_right {
+            background-image: url(images/blocks/borderRight.png);
+            background-size: cover;
+          }
+
+          &.border_top {
+            background-image: url(images/blocks/borderTop.png);
+            background-size: cover;
+          }
+
+          &.border_bottom {
+            background-image: url(images/blocks/borderBottom.png);
+            background-size: cover;
+          }
+
+          &.border_top_left {
+            background-image: url(images/blocks/borderTopLeft.png);
+            background-size: cover;
+          }
+
+          &.border_top_right {
+            background-image: url(images/blocks/borderTopRight.png);
+            background-size: cover;
+          }
+
+          &.border_bottom_left {
+            background-image: url(images/blocks/borderBottomLeft.png);
+            background-size: cover;
+          }
+
+          &.border_bottom_right {
+            background-image: url(images/blocks/borderBottomRight.png);
+            background-size: cover;
+          }
+
+          &.key {
+            background-image: url(images/blocks/keySprite.png);
+            width: 80%;
+            background-size: contain;
+          }
+        }
+      }
+    }
+  }
+
+  .illumination {
+    z-index: 999;
+    position: absolute;
+    $radius: 300vw;
+    width: $radius * 2;
+    height: $radius * 2;
+    top: -$radius + $gridSize * .4 / 2;
+    left: -$radius + $gridSize / 2;
+    background: radial-gradient(rgba(yellow, .1) 0, rgba(black, .7) 5%, rgba(black, 1) 45%);
+    transition: transform .5s;
+
+    &.flash {
+      transform: scale(4);
+    }
+  }
+
+  .spotlight {
+    z-index: 999;
+    position: absolute;
+    top: -100vw;
+    left: -100vw;
+    margin-left: calc((100vh - 100vw) / 2);
+    width: 300vw;
+    height: 300vw;
+    background-image: url(images/effects/spotlight.png);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: .7;
+  }
+
+  .minimap {
+    z-index: 1000;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    flex-direction: column;
+    margin: 4vw;
+
+    .canvas {
+      display: block;
+      border: .4vw solid white;
+      background-color: #2f522a;
+      opacity: .6;
+      height: 40vw;
+    }
+  }
+}

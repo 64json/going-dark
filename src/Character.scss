@@ -1,0 +1,121 @@
+@import "./constants";
+
+$width: $gridSize;
+$height: $width * 1.4;
+
+.Character {
+  width: $width;
+  height: $height;
+  position: absolute;
+  margin-top: $gridSize - $height;
+
+  &.team_0 {
+    background-image: url(images/characters/character_0.png);
+  }
+
+  &.team_1 {
+    background-image: url(images/characters/character_1.png);
+  }
+
+  background-size: 400%;
+  animation-name: walking-anim;
+  animation-duration: .75s;
+  animation-iteration-count: infinite;
+  animation-timing-function: step-start;
+
+  &.moving {
+    background-position-y: 0;
+  }
+
+  &.bottom {
+    background-position-x: 0;
+
+    .holding {
+      right: 0;
+    }
+  }
+
+  &.left {
+    background-position-x: -$width;
+
+    .holding {
+      left: 0;
+    }
+  }
+
+  &.top {
+    background-position-x: -$width * 2;
+
+    .holding {
+      left: 0;
+    }
+  }
+
+  &.right {
+    background-position-x: -$width * 3;
+
+    .holding {
+      right: 0;
+    }
+  }
+
+  .holding {
+    position: absolute;
+    top: $height / 2;
+    width: 5vw;
+    height: 5vw;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    animation-name: walking-holding-anim;
+    animation-duration: .75s;
+    animation-iteration-count: infinite;
+    animation-timing-function: step-start;
+
+    &.lamp {
+      background-image: url(images/blocks/lamp.png);
+    }
+
+    &.key {
+      background-image: url(images/blocks/keySprite.png);
+      transform: skew(10deg);
+    }
+  }
+
+  &:not(.moving) {
+    animation: none;
+
+    .holding {
+      animation: none;
+    }
+  }
+}
+
+@keyframes walking-holding-anim {
+  0%, 100% {
+    margin-top: .5vw;
+  }
+
+  50% {
+    margin-top: 0;
+  }
+}
+
+@keyframes walking-anim {
+  0%, 100% {
+    background-position-y: -$height;
+  }
+
+  25% {
+    background-position-y: 0;
+  }
+
+  50% {
+    background-position-y: $height;
+  }
+
+  75% {
+    background-position-y: 0;
+  }
+}
