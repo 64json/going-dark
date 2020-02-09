@@ -21,7 +21,7 @@ import {
   TREE,
 } from './blocks';
 import './GameRenderer.scss';
-// TODO: grass not moving
+
 const obstacles = [ROCK0, ROCK1, ROCK2, TREE, JAIL,
   BORDER_TOP,
   BORDER_BOTTOM,
@@ -44,16 +44,16 @@ export function GameRenderer({ game }) {
       let dx = 0;
       let dy = 0;
       switch (e.key) {
-        case 'ArrowDown':
+        case 'ArrowLeft':
           dx++;
           break;
-        case 'ArrowUp':
+        case 'ArrowRight':
           dx--;
           break;
-        case 'ArrowLeft':
+        case 'ArrowUp':
           dy--;
           break;
-        case 'ArrowRight':
+        case 'ArrowDown':
           dy++;
           break;
         default:
@@ -110,7 +110,7 @@ export function GameRenderer({ game }) {
 
   useEffect(() => {
     if (me.isScanning) {
-      const aimingAngle = me.angle;
+      const aimingAngle = me.getAngle(reversed);
       let currentAngle = teams[me.pos.teamId].scanAngle;
       const unit = Math.PI / 300;
       const delta = aimingAngle - currentAngle;

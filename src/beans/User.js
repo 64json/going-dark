@@ -89,8 +89,8 @@ export class User {
     this.server && this.server.updateUser(this);
   }
 
-  get angle() {
-    return Math.atan2(-this.delta.y, this.delta.x);
+  getAngle(reversed) {
+    return Math.atan2(-this.delta.y * (reversed ? -1 : 1), this.delta.x * (reversed ? -1 : 1));
   }
 
   get nextPos() {
