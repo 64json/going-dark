@@ -31,7 +31,7 @@ export class Game {
 
   get allies() {
     const { teamId } = this.me;
-    return this.users.filter(user => user.teamId === teamId);
+    return this.users.filter(user => user !== this.me && user.teamId === teamId );
   }
 
   get enemies() {
