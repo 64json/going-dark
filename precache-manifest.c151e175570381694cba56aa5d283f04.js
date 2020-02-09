@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "386d66432f6bfb1d802b82d17d5ca799",
+    "revision": "f5e868884660a3ab7f2df4cb24802209",
     "url": "/going-dark/index.html"
   },
   {
-    "revision": "efd3592668507b608244",
+    "revision": "445d4d9214674c3f0a2d",
     "url": "/going-dark/static/css/main.efa77896.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/going-dark/static/js/2.8b1e89f7.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "efd3592668507b608244",
-    "url": "/going-dark/static/js/main.0505cee0.chunk.js"
+    "revision": "445d4d9214674c3f0a2d",
+    "url": "/going-dark/static/js/main.2f04bc86.chunk.js"
   },
   {
     "revision": "3e61a3563e52ebbe1689",
