@@ -158,10 +158,9 @@
     z-index: 999;
     position: absolute;
     $radius: 300vw;
+    margin: -$radius;
     width: $radius * 2;
     height: $radius * 2;
-    top: -$radius + $gridSize * .4 / 2;
-    left: -$radius + $gridSize / 2;
     background: radial-gradient(rgba(yellow, .1) 0, rgba(black, .7) 5%, rgba(black, 1) 45%);
     transition: transform .5s;
 

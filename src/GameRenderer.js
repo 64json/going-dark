@@ -21,7 +21,7 @@ import {
   TREE,
 } from './blocks';
 import './GameRenderer.scss';
-
+// TODO: grass not moving
 const obstacles = [ROCK0, ROCK1, ROCK2, TREE, JAIL,
   BORDER_TOP,
   BORDER_BOTTOM,
@@ -58,8 +58,8 @@ export function GameRenderer({ game }) {
           break;
         default:
       }
-      dx /= 1;
-      dy /= 1;
+      dx /= 5;
+      dy /= 5;
       if (reversed) {
         dx *= -1;
         dy *= -1;
@@ -74,8 +74,8 @@ export function GameRenderer({ game }) {
     const onTilt = e => {
       const beta = e.beta;
       const gamma = e.gamma;
-      let dx = -gamma / 360;
-      let dy = beta / 360;
+      let dx = -gamma / 120;
+      let dy = beta / 120;
       if (reversed) {
         dx *= -1;
         dy *= -1;
@@ -240,7 +240,10 @@ export function GameRenderer({ game }) {
              });
            }
          }}>
-      <div className={classes('grid', me.isScanning && 'scan')}>
+      <div className={classes('grid', me.isScanning && 'scan')} style={{
+        backgroundPositionY: `calc(${offsetX * (reversed ? -1 : 1)} * ${game.window.gridSize})`,
+        backgroundPositionX: `calc(${offsetY * (reversed ? -1 : 1)} * ${game.window.gridSize})`,
+      }}>
         {
           croppedMap.map((row, i) => (
             <div className="row" key={i} style={{
@@ -290,8 +293,10 @@ export function GameRenderer({ game }) {
       {
         !me.isScanning &&
         <div className={classes('illumination', me.isFlashing && 'flash')} style={{
-          marginTop: `calc(${game.window.center.x} * ${game.window.gridSize})`,
-          marginLeft: `calc(${game.window.center.y} * ${game.window.gridSize})`,
+          [reversed ? 'bottom' : 'top']: `calc(${game.window.center.x} * ${game.window.gridSize})`,
+          [reversed ? 'right' : 'left']: `calc(${game.window.center.y} * ${game.window.gridSize}${me.isScanning ? ' + (100vh - 100vw) / 2' : ''})`,
+          [reversed ? 'marginRight' : 'marginLeft']: `calc(-300vw + ${0.5} * ${game.window.gridSize})`,
+          [reversed ? 'marginBottom' : 'marginTop']: `calc(-300vw + ${reversed ? 0.4 : 0} * ${game.window.gridSize})`,
         }}/>
       }
       {
