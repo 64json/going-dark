@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "4cf13de469fb03276ad3bbebad41fea5",
+    "revision": "b16e883c9a4df2d00c2e55eaa6e8418c",
     "url": "/capture-the-flag/index.html"
   },
   {
-    "revision": "716fd13d4257dbe9cef3",
-    "url": "/capture-the-flag/static/css/main.1d652559.chunk.css"
+    "revision": "abea529850180a270fbb",
+    "url": "/capture-the-flag/static/css/main.e890f2e7.chunk.css"
   },
   {
-    "revision": "751a878eec0db6278780",
-    "url": "/capture-the-flag/static/js/2.6873aab1.chunk.js"
+    "revision": "809aa89edb8c5f098cc1",
+    "url": "/capture-the-flag/static/js/2.84b5cbec.chunk.js"
   },
   {
     "revision": "222b4a5f5cd655e34e2a29e8aabff23f",
-    "url": "/capture-the-flag/static/js/2.6873aab1.chunk.js.LICENSE.txt"
+    "url": "/capture-the-flag/static/js/2.84b5cbec.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "716fd13d4257dbe9cef3",
-    "url": "/capture-the-flag/static/js/main.a2989cbe.chunk.js"
+    "revision": "abea529850180a270fbb",
+    "url": "/capture-the-flag/static/js/main.e9ca1476.chunk.js"
   },
   {
     "revision": "086c8c286cf8f12298b6",
