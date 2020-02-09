@@ -20,7 +20,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
-  "homepage": "https://jasonpark.me/capture-the-flag",
+  "homepage": "https://jasonpark.me/going-dark",
   "eslintConfig": {
     "extends": "react-app"
   },

@@ -14,7 +14,7 @@ function Character({ className, user, style, reversed }) {
   return (
     <div className={classes('Character', `team_${user.teamId}`, moving && 'moving', direction, className)}
          style={style}>
-      <div className={classes('holding', user.hasKey ? 'key' : 'lamp')}/>
+      <div className={classes('holding', user.hasOwnKey || user.hasStolenKey ? 'key' : 'lamp')}/>
     </div>
   );
 }

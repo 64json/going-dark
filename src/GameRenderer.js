@@ -58,8 +58,8 @@ export function GameRenderer({ game }) {
           break;
         default:
       }
-      dx /= 3;
-      dy /= 3;
+      dx /= 1;
+      dy /= 1;
       if (reversed) {
         dx *= -1;
         dy *= -1;
@@ -126,10 +126,14 @@ export function GameRenderer({ game }) {
     } else {
       const currentPos = me.pos;
       const nextPos = me.nextPos;
-      if (obstacles.some(obstacle => map.has(new Pos(nextPos.x, currentPos.y), obstacle))) {
+      const myObstacles = [...obstacles];
+      if (me.hasOwnKey) {
+        myObstacles.push(DIVIDER);
+      }
+      if (myObstacles.some(obstacle => map.has(new Pos(nextPos.x, currentPos.y), obstacle))) {
         nextPos.x = currentPos.x;
       }
-      if (obstacles.some(obstacle => map.has(new Pos(currentPos.x, nextPos.y), obstacle))) {
+      if (myObstacles.some(obstacle => map.has(new Pos(currentPos.x, nextPos.y), obstacle))) {
         nextPos.y = currentPos.y;
       }
       let stop = false;
@@ -146,6 +150,20 @@ export function GameRenderer({ game }) {
       });
       if (!stop) {
         me.pos = nextPos;
+        if (me.hasStolenKey && me.teamId === me.pos.teamId) {
+          me.hasStolenKey = false;
+          teams[me.teamId].achievedKeyCount++;
+        }
+        if (me.isOurBase(me.pos)) {
+          const caughtEnemy = game.enemies.find(enemy => enemy.pos.distanceTo(me.pos) < 1);
+          if (caughtEnemy) {
+            if (caughtEnemy.hasStolenKey) {
+              map.add(caughtEnemy.pos, KEY);
+              caughtEnemy.hasStolenKey = false;
+            }
+            caughtEnemy.pos = game.getJailPos(me.teamId);
+          }
+        }
       }
     }
   }, [frame]);
@@ -171,6 +189,9 @@ export function GameRenderer({ game }) {
     map.forEach((row, i) => {
       row.forEach((flag, j) => {
         const block = blocks.find(block => (block & flag) > 0);
+        if (block === KEY.toString() && !me.isOurBase(new Pos(i, j))) {
+          return;
+        }
         if (block in attrMap) {
           const [color, size] = attrMap[block];
           ctx.fillStyle = color;
@@ -179,7 +200,7 @@ export function GameRenderer({ game }) {
       });
     });
 
-    game.otherUsers.forEach(user => {
+    game.allies.forEach(user => {
       ctx.fillStyle = user.teamId === me.teamId ? '#00FF00' : '#FF0000';
       ctx.fillRect(user.pos.y - 1, user.pos.x - 1, 3, 3);
     });
@@ -191,16 +212,32 @@ export function GameRenderer({ game }) {
     ctx.strokeRect(me.pos.y - game.window.center.y - 1, me.pos.x - game.window.center.x - 1, game.window.width + 2, game.window.height + 2);
   }
 
+
   return (
     <div className="GameRenderer"
          onTouchStart={() => me.isFlashing = true} onTouchEnd={() => me.isFlashing = false}
          onMouseDown={() => me.isFlashing = true} onMouseUp={() => me.isFlashing = false}
          onClick={() => {
+           const closeImprisonedAllies = game.allies.filter(ally => ally.isInJail() && ally.pos.distanceTo(me.pos) < 5);
            if (me.isScanning) {
              me.isScanning = false;
-           } else if (me.hasKey) {
+           } else if (me.hasOwnKey) {
              map.add(me.pos, KEY);
-             me.hasKey = false;
+             me.hasOwnKey = false;
+           } else if (closeImprisonedAllies.length > 0) {
+             closeImprisonedAllies.forEach((ally, i) => {
+               ally.pos = game.getSpawnPos(me.teamId, i);
+             });
+           } else if (!me.hasStolenKey) {
+             croppedMap.forEach((row, i) => {
+               row.forEach((flag, j) => {
+                 const pos = new Pos(crop.x + i, crop.y + j);
+                 if ((flag & KEY) > 0 && me.pos.distanceTo(pos) < 1 && pos.teamId !== me.teamId) {
+                   map.remove(pos, KEY);
+                   me.hasStolenKey = true;
+                 }
+               });
+             });
            }
          }}>
       <div className={classes('grid', me.isScanning && 'scan')}>
@@ -242,22 +279,13 @@ export function GameRenderer({ game }) {
         }
       </div>
       {
-        !me.isScanning &&
-        game.otherUsers.map((user, i) => (
+        game.users.map((user, i) => (
           <Character key={i} className="character" user={user} style={{
             zIndex: user.pos.indices[0] * (reversed ? -1 : 1) + game.map.height * 2,
             [reversed ? 'bottom' : 'top']: `calc(${(user.pos.x - me.pos.x) + game.window.center.x} * ${game.window.gridSize})`,
-            [reversed ? 'right' : 'left']: `calc(${(user.pos.y - me.pos.y) + game.window.center.y} * ${game.window.gridSize})`,
+            [reversed ? 'right' : 'left']: `calc(${(user.pos.y - me.pos.y) + game.window.center.y} * ${game.window.gridSize}${me.isScanning ? ' + (100vh - 100vw) / 2' : ''})`,
           }} reversed={reversed}/>
         ))
-      }
-      {
-        !me.isScanning &&
-        <Character className="character" user={me} style={{
-          zIndex: me.pos.indices[0] * (reversed ? -1 : 1) + game.map.height * 2,
-          [reversed ? 'bottom' : 'top']: `calc(${game.window.center.x} * ${game.window.gridSize})`,
-          [reversed ? 'right' : 'left']: `calc(${game.window.center.y} * ${game.window.gridSize})`,
-        }} reversed={reversed}/>
       }
       {
         !me.isScanning &&
@@ -277,6 +305,30 @@ export function GameRenderer({ game }) {
         <div className={classes('minimap', reversed && 'reversed')}>
           <canvas ref={minimapRef} className="canvas" height={map.height} width={map.width}/>
         </div>
+      }
+      {
+        !me.isScanning &&
+        <div className="progress-container">
+          <div className="progress-bar">
+            <div className="progress enemy" style={{
+              width: `${game.getProgress(1 - me.teamId) * 100}%`,
+            }}/>
+          </div>
+          <div className="progress-bar">
+            <div className="progress ally" style={{
+              width: `${game.getProgress(me.teamId) * 100}%`,
+            }}/>
+          </div>
+        </div>
+      }
+      {
+        game.done && (
+          game.win ? (
+            <div className="done win"/>
+          ) : (
+            <div className="done lose"/>
+          )
+        )
       }
     </div>
   );

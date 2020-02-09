@@ -39,6 +39,12 @@
           }
         }
       }
+
+      & ~ .Character {
+        width: $newGridSize;
+        height: $newGridSize * 1.4;
+        margin-top: -0.4 * $newGridSize;
+      }
     }
 
     .row {
@@ -165,7 +171,7 @@
   }
 
   .spotlight {
-    z-index: 999;
+    z-index: 1001;
     position: absolute;
     top: -100vw;
     left: -100vw;
@@ -180,7 +186,7 @@
   }
 
   .minimap {
-    z-index: 1000;
+    z-index: 2000;
     position: absolute;
     bottom: 0;
     left: 0;
@@ -199,6 +205,58 @@
       background-color: #2f522a;
       opacity: .6;
       height: 40vw;
+    }
+  }
+
+  .progress-container {
+    z-index: 2000;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 4vw;
+    display: flex;
+    flex-direction: column;
+
+    .progress-bar {
+      display: flex;
+      height: 5vw;
+      align-items: stretch;
+      border: 1vw solid black;
+      width: 20vw;
+      margin-top: 2vw;
+
+      .progress {
+        min-width: 5%;
+        transition: width .5s;
+
+        &.enemy {
+          background-color: red;
+        }
+
+        &.ally {
+          background-color: green;
+        }
+      }
+    }
+  }
+
+  .done {
+    z-index: 3000;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    &.win {
+      background-image: url(images/text-win.png);
+    }
+
+    &.lose {
+      background-image: url(images/text-lose.png);
     }
   }
 }

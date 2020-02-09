@@ -34,6 +34,11 @@ export class Game {
     return this.users.filter(user => user.teamId === teamId);
   }
 
+  get enemies() {
+    const { teamId } = this.me;
+    return this.users.filter(user => user.teamId !== teamId);
+  }
+
   get otherUsers() {
     return this.users.filter(user => !(user instanceof Me));
   }
@@ -45,10 +50,30 @@ export class Game {
     return this._window;
   }
 
-  getSpawnPos(teamId) {
-    const allies = this.users.filter(user => user.teamId === teamId);
-    const pos = new Pos([5 + allies.length, this.map.height - 1 - 5 - allies.length][teamId], this.map.center.y);
+  getSpawnPos(teamId, order = 0) {
+    const pos = new Pos([5 + order, this.map.height - 1 - 5 - order][teamId], this.map.center.y);
     this.map.clear(pos);
     return pos;
+  }
+
+  getJailPos(teamId) {
+    return new Pos([3, this.map.height - 1 - 3][teamId], 40);
+  }
+
+  getJailX(teamId) {
+    return [4, this.map.height - 4][teamId];
+  }
+
+  getProgress(teamId) {
+    const enemies = this.users.filter(user => user.teamId !== teamId);
+    return this.teams[teamId].achievedKeyCount / enemies.length;
+  }
+
+  get done() {
+    return this.teams.some(team => this.getProgress(team.id) >= 1);
+  }
+
+  get win() {
+    return this.getProgress(this.me.teamId) >= 1;
   }
 }

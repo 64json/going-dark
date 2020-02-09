@@ -13,7 +13,7 @@ function App() {
   const [game, setGame] = useState(null);
 
   useEffect(() => {
-    const socket = io.connect('http://localhost:8080');
+    const socket = io.connect('http://172.24.96.188:8080');
     setSocket(socket);
 
     return () => {
@@ -38,7 +38,8 @@ function App() {
     const handleJoinGame = gameJson => {
       const game = Game.restore(gameJson);
       const teamId = game.users.filter(user => user.teamId === 0).length * 2 < game.users.length ? 0 : 1;
-      game.users.push(new Me(UUID, teamId, game.getSpawnPos(teamId)));
+      const allies = game.users.filter(user => user.teamId === teamId);
+      game.users.push(new Me(UUID, teamId, game.getSpawnPos(teamId, allies.length)));
       setGame(game);
       socket.emit('updateGame', game);
     };
@@ -96,7 +97,7 @@ function App() {
          onClick={() => {
            if (!document.fullscreenElement) {
              if (app && app.requestFullscreen) {
-               // app.requestFullscreen().catch(alert);
+               app.requestFullscreen().catch(alert);
              }
            }
          }}>

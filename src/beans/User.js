@@ -2,20 +2,21 @@ import { Pos } from './Pos';
 import { UUID } from '../utils';
 
 export class User {
-  constructor(uuid, teamId, pos, delta = new Pos(0, 0), hasKey = true, isFlashing = false, isScanning = false) {
+  constructor(uuid, teamId, pos, delta = new Pos(0, 0), hasOwnKey = true, hasStolenKey = false, isFlashing = false, isScanning = false) {
     this.uuid = uuid;
     this.teamId = teamId;
     this._pos = pos;
     this._delta = delta;
-    this._hasKey = hasKey;
+    this._hasOwnKey = hasOwnKey;
+    this._hasStolenKey = hasStolenKey;
     this._isFlashing = isFlashing;
     this._isScanning = isScanning;
   }
 
   static restore(userJson) {
-    const { uuid, teamId, _pos, _delta, _hasKey, _isFlashing, _isScanning } = userJson;
+    const { uuid, teamId, _pos, _delta, _hasOwnKey, _hasStolenKey, _isFlashing, _isScanning } = userJson;
     const UserClass = uuid === UUID ? Me : User;
-    return new UserClass(uuid, teamId, Pos.restore(_pos), Pos.restore(_delta), _hasKey, _isFlashing, _isScanning);
+    return new UserClass(uuid, teamId, Pos.restore(_pos), Pos.restore(_delta), _hasOwnKey, _hasStolenKey, _isFlashing, _isScanning);
   }
 
   sync(server) {
@@ -52,12 +53,21 @@ export class User {
     this.server && this.server.updateUser(this);
   }
 
-  get hasKey() {
-    return this._hasKey;
+  get hasOwnKey() {
+    return this._hasOwnKey;
   }
 
-  set hasKey(hasKey) {
-    this._hasKey = hasKey;
+  set hasOwnKey(hasOwnKey) {
+    this._hasOwnKey = hasOwnKey;
+    this.server && this.server.updateUser(this);
+  }
+
+  get hasStolenKey() {
+    return this._hasStolenKey;
+  }
+
+  set hasStolenKey(hasStolenKey) {
+    this._hasStolenKey = hasStolenKey;
     this.server && this.server.updateUser(this);
   }
 
@@ -85,6 +95,14 @@ export class User {
 
   get nextPos() {
     return this.pos.plus(this.delta);
+  }
+
+  isOurBase(pos) {
+    return this.teamId === pos.teamId;
+  }
+
+  isInJail() {
+    return this.pos.x < 4 || this.pos.x > 156;
   }
 }
 

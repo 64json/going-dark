@@ -1,0 +1,66 @@
+@import "./constants";
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+.Lobby {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 64px;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  font-family: 'Roboto', sans-serif;
+  box-sizing: border-box;
+  font-size: 24px;
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-image: url(images/blocks/tileGrass.png);
+    background-size: $gridSize $gridSize;
+    background-repeat: repeat;
+    opacity: .5;
+  }
+
+  .logo {
+    position: relative;
+    z-index: 1;
+    width: 200px;
+    height: 200px;
+    background-image: url(images/logo.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-bottom: 24px;
+  }
+
+  .room-list {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .room {
+      padding: 16px;
+      font-weight: bold;
+    }
+  }
+
+  .create-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+
+    .room-name {
+      flex: 1;
+      min-width: 0;
+      width: auto;
+      font-size: inherit;
+    }
+  }
+}

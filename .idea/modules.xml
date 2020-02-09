@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/capture-the-flag.iml" filepath="$PROJECT_DIR$/.idea/capture-the-flag.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../going-dark/.idea/going-dark.iml" filepath="$PROJECT_DIR$/../going-dark/.idea/going-dark.iml" />
     </modules>
   </component>
 </project>
